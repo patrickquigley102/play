@@ -8,7 +8,6 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	request, _ := http.NewRequest(http.MethodGet, "/players/Quigley", nil)
 	type args struct {
 		w *httptest.ResponseRecorder
 		r *http.Request
@@ -19,12 +18,20 @@ func TestServer(t *testing.T) {
 		want string
 	}{
 		{
-			"handler request",
+			"get a score",
 			args{
 				w: httptest.NewRecorder(),
-				r: request,
+				r: buildRequest("a", t),
 			},
 			"1",
+		},
+		{
+			"get b score",
+			args{
+				w: httptest.NewRecorder(),
+				r: buildRequest("b", t),
+			},
+			"4",
 		},
 	}
 	for _, tt := range tests {
@@ -33,8 +40,13 @@ func TestServer(t *testing.T) {
 
 			got := tt.args.w.Body.String()
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewPostRenderer() = %v, want %v", got, tt.want)
+				t.Errorf("Server() = %v, want %v", got, tt.want)
 			}
 		})
 	}
+}
+
+func buildRequest(playerName string, t *testing.T) *http.Request {
+	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
+	return request
 }
