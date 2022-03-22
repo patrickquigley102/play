@@ -23,13 +23,18 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}{
 		{
 			"get a score",
-			args{w: httptest.NewRecorder(), r: buildRequest("a", t)},
+			args{w: httptest.NewRecorder(), r: buildGetRequest("a", t)},
 			want{body: "1", code: http.StatusOK},
 		},
 		{
-			"player not found",
-			args{w: httptest.NewRecorder(), r: buildRequest("c", t)},
+			"get score, player not found",
+			args{w: httptest.NewRecorder(), r: buildGetRequest("c", t)},
 			want{body: "Score Not Found", code: http.StatusNotFound},
+		},
+		{
+			"post score",
+			args{w: httptest.NewRecorder(), r: buildPostRequest("a", t)},
+			want{body: "Score Updated", code: http.StatusCreated},
 		},
 	}
 	for _, tt := range tests {
@@ -50,11 +55,6 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}
 }
 
-func buildRequest(playerName string, t *testing.T) *http.Request {
-	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
-	return request
-}
-
 func stubbedStore() PlayerStore {
 	return &stubPlayerStore{
 		scores: map[string]int{
@@ -71,4 +71,14 @@ type stubPlayerStore struct {
 func (s *stubPlayerStore) getPlayerScore(name string) int {
 	score := s.scores[name]
 	return score
+}
+
+func buildGetRequest(playerName string, t *testing.T) *http.Request {
+	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
+	return request
+}
+
+func buildPostRequest(playerName string, t *testing.T) *http.Request {
+	request, _ := http.NewRequest(http.MethodPost, "/players/"+playerName, nil)
+	return request
 }

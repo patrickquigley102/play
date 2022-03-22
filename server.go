@@ -10,6 +10,13 @@ import (
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	score := s.store.getPlayerScore(player)
+
+	if r.Method == http.MethodPost {
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, "Score Updated")
+		return
+	}
+
 	if score > 0 {
 		fmt.Fprint(w, score)
 	} else {
