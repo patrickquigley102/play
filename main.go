@@ -6,6 +6,12 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(Server)
+	handler := Server{store: tempStore{}}
 	log.Fatal(http.ListenAndServe(":3000", handler))
+}
+
+type tempStore struct{}
+
+func (s tempStore) getPlayerScore(name string) int {
+	return 123
 }

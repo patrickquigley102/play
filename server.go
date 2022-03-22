@@ -6,20 +6,19 @@ import (
 	"strings"
 )
 
-// Server is a http.Handler
-func Server(w http.ResponseWriter, r *http.Request) {
-	player := getPlayer(r)
-	score := getScore(player)
+// ServeHTTP serves http requests
+func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+	score := s.store.getPlayerScore(player)
 	fmt.Fprint(w, score)
 }
 
-func getPlayer(r *http.Request) string {
-	return strings.TrimPrefix(r.URL.Path, "/players/")
+// Server player information
+type Server struct {
+	store PlayerStore
 }
 
-func getScore(player string) string {
-	if player == "a" {
-		return "1"
-	}
-	return "4"
+// PlayerStore persists player data
+type PlayerStore interface {
+	getPlayerScore(string) int
 }

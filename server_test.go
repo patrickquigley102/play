@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestServer(t *testing.T) {
+func TestServer_ServeHTTP(t *testing.T) {
 	type args struct {
 		w *httptest.ResponseRecorder
 		r *http.Request
@@ -36,11 +36,12 @@ func TestServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Server(tt.args.w, tt.args.r)
+			s := Server{store: stubbedStore()}
+			s.ServeHTTP(tt.args.w, tt.args.r)
 
 			got := tt.args.w.Body.String()
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Server() = %v, want %v", got, tt.want)
+				t.Errorf("ServeHTTP() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -49,4 +50,22 @@ func TestServer(t *testing.T) {
 func buildRequest(playerName string, t *testing.T) *http.Request {
 	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
 	return request
+}
+
+func stubbedStore() PlayerStore {
+	return &stubPlayerStore{
+		scores: map[string]int{
+			"a": 1,
+			"b": 4,
+		},
+	}
+}
+
+type stubPlayerStore struct {
+	scores map[string]int
+}
+
+func (s *stubPlayerStore) getPlayerScore(name string) int {
+	score := s.scores[name]
+	return score
 }
