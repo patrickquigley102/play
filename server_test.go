@@ -12,26 +12,24 @@ func TestServer_ServeHTTP(t *testing.T) {
 		w *httptest.ResponseRecorder
 		r *http.Request
 	}
+	type want struct {
+		body string
+		code int
+	}
 	tests := []struct {
 		name string
 		args args
-		want string
+		want want
 	}{
 		{
 			"get a score",
-			args{
-				w: httptest.NewRecorder(),
-				r: buildRequest("a", t),
-			},
-			"1",
+			args{w: httptest.NewRecorder(), r: buildRequest("a", t)},
+			want{body: "1", code: http.StatusOK},
 		},
 		{
-			"get b score",
-			args{
-				w: httptest.NewRecorder(),
-				r: buildRequest("b", t),
-			},
-			"4",
+			"player not found",
+			args{w: httptest.NewRecorder(), r: buildRequest("c", t)},
+			want{body: "Score Not Found", code: http.StatusNotFound},
 		},
 	}
 	for _, tt := range tests {
@@ -39,9 +37,14 @@ func TestServer_ServeHTTP(t *testing.T) {
 			s := Server{store: stubbedStore()}
 			s.ServeHTTP(tt.args.w, tt.args.r)
 
-			got := tt.args.w.Body.String()
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ServeHTTP() = %v, want %v", got, tt.want)
+			gotBody := tt.args.w.Body.String()
+			if !reflect.DeepEqual(gotBody, tt.want.body) {
+				t.Errorf("ServeHTTP() Body = %v, want %v", gotBody, tt.want.body)
+			}
+
+			gotCode := tt.args.w.Code
+			if !reflect.DeepEqual(gotCode, tt.want.code) {
+				t.Errorf("ServeHTTP() Code = %v, want %v", gotCode, tt.want.code)
 			}
 		})
 	}

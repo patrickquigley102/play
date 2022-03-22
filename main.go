@@ -13,5 +13,9 @@ func main() {
 type tempStore struct{}
 
 func (s tempStore) getPlayerScore(name string) int {
-	return 123
+	if name == "paddy" {
+		return 123
+	}
+
+	return 0
 }

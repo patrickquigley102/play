@@ -10,7 +10,12 @@ import (
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	score := s.store.getPlayerScore(player)
-	fmt.Fprint(w, score)
+	if score > 0 {
+		fmt.Fprint(w, score)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Score Not Found")
+	}
 }
 
 // Server player information
