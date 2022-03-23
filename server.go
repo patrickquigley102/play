@@ -11,7 +11,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
 	if r.Method == http.MethodPost {
-		s.PostScore(w, player, 5)
+		s.PostScore(w, player)
 	} else {
 		s.GetScore(w, player)
 	}
@@ -29,8 +29,8 @@ func (s Server) GetScore(w http.ResponseWriter, player string) {
 }
 
 // PostScore of a player, write http response
-func (s Server) PostScore(w http.ResponseWriter, player string, score int) {
-	s.store.updatePlayerScore(player, score)
+func (s Server) PostScore(w http.ResponseWriter, player string) {
+	s.store.updatePlayerScore(player)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Score Updated: %v", s.store.getPlayerScore(player))
 }
@@ -43,5 +43,5 @@ type Server struct {
 // PlayerStore persists player data
 type PlayerStore interface {
 	getPlayerScore(string) int
-	updatePlayerScore(string, int)
+	updatePlayerScore(string)
 }

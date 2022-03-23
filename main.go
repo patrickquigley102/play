@@ -20,5 +20,5 @@ func (s tempStore) getPlayerScore(name string) int {
 	return 0
 }
 
-func (s tempStore) updatePlayerScore(name string, score int) {
+func (s tempStore) updatePlayerScore(name string) {
 }

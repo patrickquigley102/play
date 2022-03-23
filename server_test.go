@@ -90,7 +90,6 @@ func TestServer_PostScore(t *testing.T) {
 	type args struct {
 		w      *httptest.ResponseRecorder
 		player string
-		score  int
 	}
 	type want struct {
 		body        string
@@ -104,9 +103,9 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), player: "a", score: 5},
+			args{w: httptest.NewRecorder(), player: "a"},
 			want{
-				body:        "Score Updated: 5",
+				body:        "Score Updated: 2",
 				code:        http.StatusCreated,
 				updateCalls: []string{"a"},
 			},
@@ -117,7 +116,7 @@ func TestServer_PostScore(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
 			s := Server{store: store}
 
-			s.PostScore(tt.args.w, tt.args.player, tt.args.score)
+			s.PostScore(tt.args.w, tt.args.player)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
@@ -151,8 +150,8 @@ func (s *stubPlayerStore) getPlayerScore(name string) int {
 	return score
 }
 
-func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
-	s.scores[name] = score
+func (s *stubPlayerStore) updatePlayerScore(name string) {
+	s.scores[name]++
 	s.updateCalls = append(s.updateCalls, name)
 }
 
