@@ -30,7 +30,8 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := Server{store: stubbedStore()}
+			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+			s := Server{store: store}
 			s.ServeHTTP(tt.args.w, tt.args.r)
 
 			gotCode := tt.args.w.Code
@@ -68,7 +69,8 @@ func TestServer_GetScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := Server{store: stubbedStore()}
+			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+			s := Server{store: store}
 			s.GetScore(tt.args.w, tt.args.player)
 
 			gotBody := tt.args.w.Body.String()
@@ -88,6 +90,7 @@ func TestServer_PostScore(t *testing.T) {
 	type args struct {
 		w      *httptest.ResponseRecorder
 		player string
+		score  int
 	}
 	type want struct {
 		body        string
@@ -101,9 +104,9 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), player: "a"},
+			args{w: httptest.NewRecorder(), player: "a", score: 5},
 			want{
-				body:        "Score Updated",
+				body:        "Score Updated: 5",
 				code:        http.StatusCreated,
 				updateCalls: []string{"a"},
 			},
@@ -111,9 +114,10 @@ func TestServer_PostScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := &stubPlayerStore{}
+			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
 			s := Server{store: store}
-			s.PostScore(tt.args.w, tt.args.player)
+
+			s.PostScore(tt.args.w, tt.args.player, tt.args.score)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
@@ -137,10 +141,6 @@ func TestServer_PostScore(t *testing.T) {
 	}
 }
 
-func stubbedStore() PlayerStore {
-	return &stubPlayerStore{scores: map[string]int{"a": 1}}
-}
-
 type stubPlayerStore struct {
 	scores      map[string]int
 	updateCalls []string
@@ -152,6 +152,7 @@ func (s *stubPlayerStore) getPlayerScore(name string) int {
 }
 
 func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
+	s.scores[name] = score
 	s.updateCalls = append(s.updateCalls, name)
 }
 
