@@ -42,4 +42,5 @@ type Server struct {
 // PlayerStore persists player data
 type PlayerStore interface {
 	getPlayerScore(string) int
+	updatePlayerScore(string, int)
 }
