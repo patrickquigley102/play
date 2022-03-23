@@ -30,6 +30,8 @@ func (s Server) GetScore(w http.ResponseWriter, r *http.Request) {
 
 // PostScore of a player, write http response
 func (s Server) PostScore(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+	s.store.updatePlayerScore(player, 0)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "Score Updated")
 }
