@@ -43,8 +43,8 @@ func TestServer_ServeHTTP(t *testing.T) {
 
 func TestServer_GetScore(t *testing.T) {
 	type args struct {
-		w *httptest.ResponseRecorder
-		r *http.Request
+		w      *httptest.ResponseRecorder
+		player string
 	}
 	type want struct {
 		body string
@@ -57,19 +57,19 @@ func TestServer_GetScore(t *testing.T) {
 	}{
 		{
 			"get score",
-			args{w: httptest.NewRecorder(), r: buildGetRequest("a", t)},
+			args{w: httptest.NewRecorder(), player: "a"},
 			want{body: "1", code: http.StatusOK},
 		},
 		{
 			"get score, player not found",
-			args{w: httptest.NewRecorder(), r: buildGetRequest("c", t)},
+			args{w: httptest.NewRecorder(), player: "c"},
 			want{body: "Score Not Found", code: http.StatusNotFound},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Server{store: stubbedStore()}
-			s.GetScore(tt.args.w, tt.args.r)
+			s.GetScore(tt.args.w, tt.args.player)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
@@ -86,8 +86,8 @@ func TestServer_GetScore(t *testing.T) {
 
 func TestServer_PostScore(t *testing.T) {
 	type args struct {
-		w *httptest.ResponseRecorder
-		r *http.Request
+		w      *httptest.ResponseRecorder
+		player string
 	}
 	type want struct {
 		body        string
@@ -101,7 +101,7 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), r: buildPostRequest("a", t)},
+			args{w: httptest.NewRecorder(), player: "a"},
 			want{
 				body:        "Score Updated",
 				code:        http.StatusCreated,
@@ -113,7 +113,7 @@ func TestServer_PostScore(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{}
 			s := Server{store: store}
-			s.PostScore(tt.args.w, tt.args.r)
+			s.PostScore(tt.args.w, tt.args.player)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {

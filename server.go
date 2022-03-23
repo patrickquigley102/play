@@ -8,18 +8,18 @@ import (
 
 // ServeHTTP serves http requests
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+
 	if r.Method == http.MethodPost {
-		s.PostScore(w, r)
+		s.PostScore(w, player)
 	} else {
-		s.GetScore(w, r)
+		s.GetScore(w, player)
 	}
 }
 
 // GetScore of a player, write http response
-func (s Server) GetScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (s Server) GetScore(w http.ResponseWriter, player string) {
 	score := s.store.getPlayerScore(player)
-
 	if score > 0 {
 		fmt.Fprint(w, score)
 	} else {
@@ -29,8 +29,7 @@ func (s Server) GetScore(w http.ResponseWriter, r *http.Request) {
 }
 
 // PostScore of a player, write http response
-func (s Server) PostScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (s Server) PostScore(w http.ResponseWriter, player string) {
 	s.store.updatePlayerScore(player, 0)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "Score Updated")
