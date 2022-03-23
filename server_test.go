@@ -156,11 +156,13 @@ func (s *stubPlayerStore) updatePlayerScore(name string) {
 }
 
 func buildGetRequest(playerName string, t *testing.T) *http.Request {
+	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
 	return request
 }
 
 func buildPostRequest(playerName string, t *testing.T) *http.Request {
+	t.Helper()
 	request, _ := http.NewRequest(http.MethodPost, "/players/"+playerName, nil)
 	return request
 }
