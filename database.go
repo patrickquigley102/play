@@ -25,3 +25,6 @@ func (db SQLStore) getPlayerScore(name string) int {
 
 	return score
 }
+
+func (db SQLStore) updatePlayerScore(name string) {
+}
