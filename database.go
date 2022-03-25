@@ -13,7 +13,6 @@ type SQLStore struct {
 }
 
 func (db SQLStore) getPlayerScore(name string) int {
-
 	var score int
 	sqlStatement := "SELECT score FROM players WHERE name = ?;"
 	err := db.DB.QueryRow(sqlStatement, name).Scan(&score)
@@ -27,4 +26,14 @@ func (db SQLStore) getPlayerScore(name string) int {
 }
 
 func (db SQLStore) updatePlayerScore(name string) {
+	stmt, err := db.DB.Prepare("UPDATE players SET score = ? WHERE name = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(1, name)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

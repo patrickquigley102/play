@@ -54,3 +54,37 @@ func Test_database_getPlayerScore(t *testing.T) {
 		})
 	}
 }
+
+func Test_database_updatePlayerScore(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	sql := "UPDATE players SET score = ?"
+
+	type args struct {
+		name  string
+		score int
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			"player exists",
+			args{name: "susan", score: 1},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sqlStore := SQLStore{DB: db}
+			mock.ExpectPrepare(sql).ExpectExec().
+				WithArgs(tt.args.score, tt.args.name).
+				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			sqlStore.updatePlayerScore(tt.args.name)
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
