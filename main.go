@@ -1,24 +1,27 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	handler := Server{store: tempStore{}}
-	log.Fatal(http.ListenAndServe(":3000", handler))
-}
+	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/play")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-type tempStore struct{}
-
-func (s tempStore) getPlayerScore(name string) int {
-	if name == "paddy" {
-		return 123
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return 0
-}
+	store := SQLStore{DB: db}
 
-func (s tempStore) updatePlayerScore(name string) {
+	handler := Server{store: store}
+	fmt.Println("Listening")
+	log.Fatal(http.ListenAndServe(":3000", handler))
 }
