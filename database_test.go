@@ -10,45 +10,39 @@ import (
 func Test_database_getPlayerScore(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
+	sql := "SELECT score FROM players WHERE name = ?"
+	rows := sqlmock.NewRows([]string{"score"})
 
 	type args struct {
 		name string
 	}
-	type dbData struct {
-		sql  string
-		rows *sqlmock.Rows
-	}
 	tests := []struct {
-		name   string
-		args   args
-		want   int
-		dbData dbData
+		name string
+		args args
+		want int
 	}{
 		{
 			"susan found",
 			args{name: "susan"},
 			10,
-			dbData{
-				sql:  "SELECT score FROM players WHERE name = ?",
-				rows: sqlmock.NewRows([]string{"score"}).AddRow(10),
-			},
 		},
 		{
 			"bob found",
 			args{name: "bob"},
 			1,
-			dbData{
-				sql:  "SELECT score FROM players WHERE name = ?",
-				rows: sqlmock.NewRows([]string{"score"}).AddRow(1),
-			},
+		},
+		{
+			"player not found",
+			args{name: "does not exist"},
+			0,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sqlStore := SQLStore{DB: db}
-			mock.ExpectQuery(tt.dbData.sql).
+			mock.ExpectQuery(sql).
 				WithArgs(tt.args.name).
-				WillReturnRows(tt.dbData.rows)
+				WillReturnRows(rows.AddRow(tt.want))
 
 			if got := sqlStore.getPlayerScore(tt.args.name); got != tt.want {
 				t.Errorf("getPlayerScore() = %v, want %v", got, tt.want)
