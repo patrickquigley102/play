@@ -15,8 +15,8 @@ type SQLStore struct {
 func (db SQLStore) getPlayerScore(name string) int {
 
 	var score int
-	sqlStatement := "SELECT score FROM players WHERE name = 'bob';"
-	err := db.DB.QueryRow(sqlStatement).Scan(&score)
+	sqlStatement := "SELECT score FROM players WHERE name = ?;"
+	err := db.DB.QueryRow(sqlStatement, name).Scan(&score)
 
 	if err != nil {
 		log.Fatal(err)

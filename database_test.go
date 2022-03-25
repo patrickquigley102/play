@@ -25,11 +25,20 @@ func Test_database_getPlayerScore(t *testing.T) {
 		dbData dbData
 	}{
 		{
-			"player found",
+			"susan found",
+			args{name: "susan"},
+			10,
+			dbData{
+				sql:  "SELECT score FROM players WHERE name = ?",
+				rows: sqlmock.NewRows([]string{"score"}).AddRow(10),
+			},
+		},
+		{
+			"bob found",
 			args{name: "bob"},
 			1,
 			dbData{
-				sql:  "SELECT score FROM players WHERE name = 'bob';",
+				sql:  "SELECT score FROM players WHERE name = ?",
 				rows: sqlmock.NewRows([]string{"score"}).AddRow(1),
 			},
 		},
@@ -37,7 +46,9 @@ func Test_database_getPlayerScore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sqlStore := SQLStore{DB: db}
-			mock.ExpectQuery(tt.dbData.sql).WillReturnRows(tt.dbData.rows)
+			mock.ExpectQuery(tt.dbData.sql).
+				WithArgs(tt.args.name).
+				WillReturnRows(tt.dbData.rows)
 
 			if got := sqlStore.getPlayerScore(tt.args.name); got != tt.want {
 				t.Errorf("getPlayerScore() = %v, want %v", got, tt.want)
