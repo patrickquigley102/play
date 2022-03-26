@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -24,7 +25,7 @@ func TestServer_ServeHTTP(t *testing.T) {
 		},
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), r: buildPostRequest("a", t)},
+			args{w: httptest.NewRecorder(), r: buildPostRequest("a", "1", t)},
 			http.StatusCreated,
 		},
 	}
@@ -90,6 +91,7 @@ func TestServer_PostScore(t *testing.T) {
 	type args struct {
 		w      *httptest.ResponseRecorder
 		player string
+		score  int
 	}
 	type want struct {
 		body        string
@@ -103,9 +105,9 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), player: "a"},
+			args{w: httptest.NewRecorder(), player: "a", score: 1},
 			want{
-				body:        "Score Updated: 2",
+				body:        "Score Updated: 1",
 				code:        http.StatusCreated,
 				updateCalls: []string{"a"},
 			},
@@ -113,10 +115,10 @@ func TestServer_PostScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+			store := &stubPlayerStore{scores: map[string]int{"a": 0}}
 			s := Server{store: store}
 
-			s.PostScore(tt.args.w, tt.args.player)
+			s.PostScore(tt.args.w, tt.args.player, tt.args.score)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
@@ -146,12 +148,13 @@ type stubPlayerStore struct {
 }
 
 func (s *stubPlayerStore) getPlayerScore(name string) int {
-	score := s.scores[name]
-	return score
+	return s.scores[name]
 }
 
-func (s *stubPlayerStore) updatePlayerScore(name string) {
-	s.scores[name]++
+func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
+	s.scores[name] = score
+	fmt.Println(name)
+	fmt.Println(s.scores[name])
 	s.updateCalls = append(s.updateCalls, name)
 }
 
@@ -161,8 +164,16 @@ func buildGetRequest(playerName string, t *testing.T) *http.Request {
 	return request
 }
 
-func buildPostRequest(playerName string, t *testing.T) *http.Request {
+func buildPostRequest(
+	playerName string,
+	score string,
+	t *testing.T,
+) *http.Request {
 	t.Helper()
-	request, _ := http.NewRequest(http.MethodPost, "/players/"+playerName, nil)
+	request, _ := http.NewRequest(
+		http.MethodPost,
+		"/players/"+playerName+"/"+score,
+		nil,
+	)
 	return request
 }

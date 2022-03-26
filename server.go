@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -11,7 +12,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
 	if r.Method == http.MethodPost {
-		s.PostScore(w, player)
+		s.PostScore(w, player, 1)
 	} else {
 		s.GetScore(w, player)
 	}
@@ -19,6 +20,8 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // GetScore of a player, write http response
 func (s Server) GetScore(w http.ResponseWriter, player string) {
+	log.Printf("GetScore for %s", player)
+
 	score := s.store.getPlayerScore(player)
 	if score > 0 {
 		fmt.Fprint(w, score)
@@ -29,8 +32,10 @@ func (s Server) GetScore(w http.ResponseWriter, player string) {
 }
 
 // PostScore of a player, write http response
-func (s Server) PostScore(w http.ResponseWriter, player string) {
-	s.store.updatePlayerScore(player)
+func (s Server) PostScore(w http.ResponseWriter, player string, score int) {
+	log.Printf("PostScore for %s", player)
+
+	s.store.updatePlayerScore(player, score)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Score Updated: %v", s.store.getPlayerScore(player))
 }
@@ -43,5 +48,5 @@ type Server struct {
 // PlayerStore persists player data
 type PlayerStore interface {
 	getPlayerScore(string) int
-	updatePlayerScore(string)
+	updatePlayerScore(string, int)
 }

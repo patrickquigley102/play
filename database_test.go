@@ -80,7 +80,7 @@ func Test_database_updatePlayerScore(t *testing.T) {
 				WithArgs(tt.args.score, tt.args.name).
 				WillReturnResult(sqlmock.NewResult(0, 1))
 
-			sqlStore.updatePlayerScore(tt.args.name)
+			sqlStore.updatePlayerScore(tt.args.name, tt.args.score)
 
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations: %s", err)

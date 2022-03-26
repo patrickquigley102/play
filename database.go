@@ -25,7 +25,7 @@ func (db SQLStore) getPlayerScore(name string) int {
 	return score
 }
 
-func (db SQLStore) updatePlayerScore(name string) {
+func (db SQLStore) updatePlayerScore(name string, score int) {
 	stmt, err := db.DB.Prepare("UPDATE players SET score = ? WHERE name = ?")
 	if err != nil {
 		log.Fatal(err)
