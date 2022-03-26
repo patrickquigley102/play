@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -27,6 +26,11 @@ func TestServer_ServeHTTP(t *testing.T) {
 			"post score",
 			args{w: httptest.NewRecorder(), r: buildPostRequest("a", "1", t)},
 			http.StatusCreated,
+		},
+		{
+			"invalid route",
+			args{w: httptest.NewRecorder(), r: buildBadRequest()},
+			http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -91,7 +95,7 @@ func TestServer_PostScore(t *testing.T) {
 	type args struct {
 		w      *httptest.ResponseRecorder
 		player string
-		score  int
+		score  string
 	}
 	type want struct {
 		body        string
@@ -105,17 +109,29 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), player: "a", score: 1},
+			args{w: httptest.NewRecorder(), player: "a", score: "1"},
 			want{
 				body:        "Score Updated: 1",
 				code:        http.StatusCreated,
 				updateCalls: []string{"a"},
 			},
 		},
+		{
+			"post score, invalid score",
+			args{w: httptest.NewRecorder(), player: "a", score: "not an int"},
+			want{
+				body:        "",
+				code:        http.StatusBadRequest,
+				updateCalls: []string{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := &stubPlayerStore{scores: map[string]int{"a": 0}}
+			store := &stubPlayerStore{
+				scores:      map[string]int{"a": 0},
+				updateCalls: []string{},
+			}
 			s := Server{store: store}
 
 			s.PostScore(tt.args.w, tt.args.player, tt.args.score)
@@ -142,6 +158,36 @@ func TestServer_PostScore(t *testing.T) {
 	}
 }
 
+func Test_parseURLParams(t *testing.T) {
+	tests := []struct {
+		name       string
+		path       string
+		wantPlayer string
+		wantScore  string
+		wantErr    bool
+	}{
+		{"valid, no score", "/players/pq", "pq", "", false},
+		{"valid", "/players/pq/100", "pq", "100", false},
+		{"invalid, prefix", "/playerz/pq", "", "", true},
+		{"invalid, too many", "/players/pq/foo/bar", "", "", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotPlayer, gotScore, err := parseURLParams(tt.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotPlayer != tt.wantPlayer {
+				t.Errorf("() gotPlayer = %v, want %v", gotPlayer, tt.wantPlayer)
+			}
+			if gotScore != tt.wantScore {
+				t.Errorf("() gotId = %v, want %v", gotScore, tt.wantScore)
+			}
+		})
+	}
+}
+
 type stubPlayerStore struct {
 	scores      map[string]int
 	updateCalls []string
@@ -153,14 +199,17 @@ func (s *stubPlayerStore) getPlayerScore(name string) int {
 
 func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
 	s.scores[name] = score
-	fmt.Println(name)
-	fmt.Println(s.scores[name])
 	s.updateCalls = append(s.updateCalls, name)
 }
 
 func buildGetRequest(playerName string, t *testing.T) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
+	return request
+}
+
+func buildBadRequest() *http.Request {
+	request, _ := http.NewRequest(http.MethodGet, "/not/a/route", nil)
 	return request
 }
 

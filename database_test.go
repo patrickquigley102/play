@@ -72,6 +72,10 @@ func Test_database_updatePlayerScore(t *testing.T) {
 			"player exists",
 			args{name: "susan", score: 1},
 		},
+		{
+			"player exists 2",
+			args{name: "susan", score: 15},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

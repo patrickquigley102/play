@@ -32,7 +32,7 @@ func (db SQLStore) updatePlayerScore(name string, score int) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(1, name)
+	_, err = stmt.Exec(score, name)
 	if err != nil {
 		log.Fatal(err)
 	}
