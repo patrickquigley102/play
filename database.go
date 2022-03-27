@@ -13,7 +13,8 @@ type SQLStore struct {
 }
 
 // NewSQLStore returns a new SQLStore. Tests database connection
-func NewSQLStore(config sqlConfig) *SQLStore {
+func NewSQLStore(filePath string) *SQLStore {
+	config := newSQLConfig(filePath)
 	db, err := sql.Open("mysql", config.connectionString())
 	if err != nil {
 		log.Fatal(err)
