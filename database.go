@@ -12,6 +12,20 @@ type SQLStore struct {
 	DB *sql.DB
 }
 
+// NewSQLStore returns a new SQLStore. Tests database connection
+func NewSQLStore(config sqlConfig) *SQLStore {
+	db, err := sql.Open("mysql", config.connectionString())
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Connected to DB")
+	return &SQLStore{DB: db}
+}
+
 func (db SQLStore) getPlayerScore(name string) int {
 	var score int
 	sqlStatement := "SELECT score FROM players WHERE name = ?;"

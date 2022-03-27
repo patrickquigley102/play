@@ -1,25 +1,21 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/play")
-	if err != nil {
-		log.Fatal(err)
+	dev := sqlConfig{
+		user:     "root",
+		password: "",
+		host:     "mysql",
+		port:     "3306",
+		schema:   "play",
 	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	store := SQLStore{DB: db}
+	store := NewSQLStore(dev)
+	defer store.DB.Close()
 
 	handler := Server{store: store}
 	fmt.Println("Listening")
