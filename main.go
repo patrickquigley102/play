@@ -7,14 +7,9 @@ import (
 )
 
 func main() {
-	dev := sqlConfig{
-		user:     "root",
-		password: "",
-		host:     "mysql",
-		port:     "3306",
-		schema:   "play",
-	}
-	store := NewSQLStore(dev)
+	devConfig := "./environments/development.yaml"
+	sqlConfig := newSQLConfig(devConfig)
+	store := NewSQLStore(*sqlConfig)
 	defer store.DB.Close()
 
 	handler := Server{store: store}
