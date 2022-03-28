@@ -39,7 +39,7 @@ func Test_database_getPlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := SQLStore{DB: db}
+			sqlStore := storeSQL{DB: db}
 			mock.ExpectQuery(sql).
 				WithArgs(tt.args.name).
 				WillReturnRows(rows.AddRow(tt.want))
@@ -79,7 +79,7 @@ func Test_database_updatePlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := SQLStore{DB: db}
+			sqlStore := storeSQL{DB: db}
 			mock.ExpectPrepare(sql).ExpectExec().
 				WithArgs(tt.args.score, tt.args.name).
 				WillReturnResult(sqlmock.NewResult(0, 1))

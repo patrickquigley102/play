@@ -7,30 +7,30 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// SQLStore is a PlayerStore backed by a relational database.
-type SQLStore struct {
+type storeSQL struct {
 	DB *sql.DB
 }
 
-// NewSQLStore returns a new SQLStore. Tests database connection
-func NewSQLStore(filePath string) *SQLStore {
-	config := newConfigSQL(filePath)
-	db, err := sql.Open("mysql", config.connectionString())
+func newStoreSQL(path string) *storeSQL {
+	config := newConfigSQL(path)
+	db, err := sql.Open("mysql", config.connStr())
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	err = db.Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	log.Println("Connected to DB")
-	return &SQLStore{DB: db}
+	return &storeSQL{DB: db}
 }
 
-func (db SQLStore) getPlayerScore(name string) int {
+func (db storeSQL) getPlayerScore(name string) int {
 	var score int
-	sqlStatement := "SELECT score FROM players WHERE name = ?;"
-	err := db.DB.QueryRow(sqlStatement, name).Scan(&score)
+	stmt := "SELECT score FROM players WHERE name = ?;"
+	err := db.DB.QueryRow(stmt, name).Scan(&score)
 
 	if err != nil && err != sql.ErrNoRows {
 		log.Println(err)
@@ -40,7 +40,7 @@ func (db SQLStore) getPlayerScore(name string) int {
 	return score
 }
 
-func (db SQLStore) updatePlayerScore(name string, score int) {
+func (db storeSQL) updatePlayerScore(name string, score int) {
 	stmt, err := db.DB.Prepare("UPDATE players SET score = ? WHERE name = ?")
 	if err != nil {
 		log.Fatal(err)

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	devConfig := "./environments/development.yaml"
-	store := NewSQLStore(devConfig)
+	store := newStoreSQL(devConfig)
 	defer store.DB.Close()
 
 	handler := Server{store: store}

@@ -16,7 +16,7 @@ type configSQL struct {
 	sch string
 }
 
-func (s configSQL) connectionString() string {
+func (s configSQL) connStr() string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s", s.usr, s.pwd, s.hst, s.prt, s.sch,
 	)
