@@ -11,7 +11,7 @@ func main() {
 	store := newStoreSQL(devConfig)
 	defer store.DB.Close()
 
-	handler := Server{store: store}
+	handler := server{store: store}
 	fmt.Println("Listening")
 	log.Fatal(http.ListenAndServe(":3000", handler))
 }

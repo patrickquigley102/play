@@ -36,7 +36,7 @@ func TestServer_ServeHTTP(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := Server{store: store}
+			s := server{store: store}
 			s.ServeHTTP(tt.args.w, tt.args.r)
 
 			gotCode := tt.args.w.Code
@@ -47,10 +47,10 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}
 }
 
-func TestServer_GetScore(t *testing.T) {
+func TestServer_getScore(t *testing.T) {
 	type args struct {
-		w      *httptest.ResponseRecorder
-		player string
+		w    *httptest.ResponseRecorder
+		name string
 	}
 	type want struct {
 		body string
@@ -63,39 +63,39 @@ func TestServer_GetScore(t *testing.T) {
 	}{
 		{
 			"get score",
-			args{w: httptest.NewRecorder(), player: "a"},
+			args{w: httptest.NewRecorder(), name: "a"},
 			want{body: "1", code: http.StatusOK},
 		},
 		{
-			"get score, player not found",
-			args{w: httptest.NewRecorder(), player: "c"},
+			"get score, name not found",
+			args{w: httptest.NewRecorder(), name: "c"},
 			want{body: "Score Not Found", code: http.StatusNotFound},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := Server{store: store}
-			s.GetScore(tt.args.w, tt.args.player)
+			s := server{store: store}
+			s.getScore(tt.args.w, tt.args.name)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
-				t.Errorf("GetScore() Body = %v, want %v", gotBody, tt.want.body)
+				t.Errorf("getScore() Body = %v, want %v", gotBody, tt.want.body)
 			}
 
 			gotCode := tt.args.w.Code
 			if !reflect.DeepEqual(gotCode, tt.want.code) {
-				t.Errorf("GetScore() Code = %v, want %v", gotCode, tt.want.code)
+				t.Errorf("getScore() Code = %v, want %v", gotCode, tt.want.code)
 			}
 		})
 	}
 }
 
-func TestServer_PostScore(t *testing.T) {
+func TestServer_postScore(t *testing.T) {
 	type args struct {
-		w      *httptest.ResponseRecorder
-		player string
-		score  string
+		w     *httptest.ResponseRecorder
+		name  string
+		score string
 	}
 	type want struct {
 		body        string
@@ -109,7 +109,7 @@ func TestServer_PostScore(t *testing.T) {
 	}{
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), player: "a", score: "1"},
+			args{w: httptest.NewRecorder(), name: "a", score: "1"},
 			want{
 				body:        "Score Updated: 1",
 				code:        http.StatusCreated,
@@ -118,7 +118,7 @@ func TestServer_PostScore(t *testing.T) {
 		},
 		{
 			"post score, invalid score",
-			args{w: httptest.NewRecorder(), player: "a", score: "not an int"},
+			args{w: httptest.NewRecorder(), name: "a", score: "not an int"},
 			want{
 				body:        "",
 				code:        http.StatusBadRequest,
@@ -132,24 +132,24 @@ func TestServer_PostScore(t *testing.T) {
 				scores:      map[string]int{"a": 0},
 				updateCalls: []string{},
 			}
-			s := Server{store: store}
+			s := server{store: store}
 
-			s.PostScore(tt.args.w, tt.args.player, tt.args.score)
+			s.postScore(tt.args.w, tt.args.name, tt.args.score)
 
 			gotBody := tt.args.w.Body.String()
 			if !reflect.DeepEqual(gotBody, tt.want.body) {
-				t.Errorf("PostScore() Body = %v, want %v", gotBody, tt.want.body)
+				t.Errorf("postScore() Body = %v, want %v", gotBody, tt.want.body)
 			}
 
 			gotCode := tt.args.w.Code
 			if !reflect.DeepEqual(gotCode, tt.want.code) {
-				t.Errorf("PostScore() Code = %v, want %v", gotCode, tt.want.code)
+				t.Errorf("postScore() Code = %v, want %v", gotCode, tt.want.code)
 			}
 
 			gotUpdateCalls := store.updateCalls
 			if !reflect.DeepEqual(gotUpdateCalls, tt.want.updateCalls) {
 				t.Errorf(
-					"PostScore() updateCalls = %v, want %v",
+					"postScore() updateCalls = %v, want %v",
 					gotUpdateCalls,
 					tt.want.updateCalls,
 				)
@@ -202,9 +202,9 @@ func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
 	s.updateCalls = append(s.updateCalls, name)
 }
 
-func buildGetRequest(playerName string, t *testing.T) *http.Request {
+func buildGetRequest(name string, t *testing.T) *http.Request {
 	t.Helper()
-	request, _ := http.NewRequest(http.MethodGet, "/players/"+playerName, nil)
+	request, _ := http.NewRequest(http.MethodGet, "/players/"+name, nil)
 	return request
 }
 
@@ -214,14 +214,14 @@ func buildBadRequest() *http.Request {
 }
 
 func buildPostRequest(
-	playerName string,
+	name string,
 	score string,
 	t *testing.T,
 ) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(
 		http.MethodPost,
-		"/players/"+playerName+"/"+score,
+		"/players/"+name+"/"+score,
 		nil,
 	)
 	return request

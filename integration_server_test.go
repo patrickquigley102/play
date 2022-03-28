@@ -8,7 +8,7 @@ import (
 
 func TestServer_Integration(t *testing.T) {
 	store := &stubPlayerStore{scores: map[string]int{"a": 5}}
-	server := Server{store: store}
+	server := server{store: store}
 	responseWriter := httptest.NewRecorder()
 
 	wantBody := "10"

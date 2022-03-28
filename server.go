@@ -9,9 +9,8 @@ import (
 	"strings"
 )
 
-// ServeHTTP serves http requests
-func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	player, score, err := parseURLParams(r.URL.Path)
+func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	name, score, err := parseURLParams(r.URL.Path)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -19,17 +18,16 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		s.PostScore(w, player, score)
+		s.postScore(w, name, score)
 	} else {
-		s.GetScore(w, player)
+		s.getScore(w, name)
 	}
 }
 
-// GetScore of a player, write http response
-func (s Server) GetScore(w http.ResponseWriter, player string) {
-	log.Printf("GetScore for %s", player)
+func (s server) getScore(w http.ResponseWriter, name string) {
+	log.Printf("getScore for %s", name)
 
-	score := s.store.getPlayerScore(player)
+	score := s.store.getPlayerScore(name)
 	if score > 0 {
 		fmt.Fprint(w, score)
 	} else {
@@ -38,9 +36,8 @@ func (s Server) GetScore(w http.ResponseWriter, player string) {
 	}
 }
 
-// PostScore of a player, write http response
-func (s Server) PostScore(w http.ResponseWriter, player string, score string) {
-	log.Printf("PostScore for %s", player)
+func (s server) postScore(w http.ResponseWriter, name string, score string) {
+	log.Printf("postScore for %s", name)
 
 	scoreInt, err := strconv.Atoi(score)
 	if err != nil {
@@ -48,17 +45,17 @@ func (s Server) PostScore(w http.ResponseWriter, player string, score string) {
 		return
 	}
 
-	s.store.updatePlayerScore(player, scoreInt)
+	s.store.updatePlayerScore(name, scoreInt)
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Score Updated: %v", s.store.getPlayerScore(player))
+	fmt.Fprintf(w, "Score Updated: %v", s.store.getPlayerScore(name))
 }
 
 func parseURLParams(path string) (string, string, error) {
-	errMessage := "Invalid Route"
+	errMsg := "Invalid Route"
 	bits := strings.Split(path, "/")
 
 	if bits[1] != "players" || len(bits) > 4 {
-		return "", "", errors.New(errMessage)
+		return "", "", errors.New(errMsg)
 	}
 
 	var score string
@@ -69,13 +66,11 @@ func parseURLParams(path string) (string, string, error) {
 	return bits[2], score, nil
 }
 
-// Server player information
-type Server struct {
-	store PlayerStore
+type server struct {
+	store playerStorer
 }
 
-// PlayerStore persists player data
-type PlayerStore interface {
+type playerStorer interface {
 	getPlayerScore(string) int
 	updatePlayerScore(string, int)
 }
