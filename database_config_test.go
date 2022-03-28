@@ -5,22 +5,22 @@ import (
 	"testing"
 )
 
-func Test_sqlConfig_connectionString(t *testing.T) {
-	s := sqlConfig{
-		user:     "user",
-		password: "password",
-		host:     "host",
-		port:     "port",
-		schema:   "schema",
+func Test_configSQL_connectionString(t *testing.T) {
+	s := configSQL{
+		usr: "user",
+		pwd: "password",
+		hst: "host",
+		prt: "port",
+		sch: "schema",
 	}
 	want := "user:password@tcp(host:port)/schema"
 	got := s.connectionString()
 	if got != want {
-		t.Errorf("sqlConfig.connectionString() = %v, want %v", got, want)
+		t.Errorf("configSQL.connectionString() = %v, want %v", got, want)
 	}
 }
 
-func Test_newSQLConfig(t *testing.T) {
+func Test_newConfigSQL(t *testing.T) {
 	tests := []struct {
 		name     string
 		filePath string
@@ -34,8 +34,8 @@ func Test_newSQLConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlConfig := newSQLConfig(tt.filePath)
-			got := sqlConfig.connectionString()
+			configSQL := newConfigSQL(tt.filePath)
+			got := configSQL.connectionString()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewSqlConfig() = %v, want %v", got, tt.want)
 			}

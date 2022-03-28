@@ -14,7 +14,7 @@ type SQLStore struct {
 
 // NewSQLStore returns a new SQLStore. Tests database connection
 func NewSQLStore(filePath string) *SQLStore {
-	config := newSQLConfig(filePath)
+	config := newConfigSQL(filePath)
 	db, err := sql.Open("mysql", config.connectionString())
 	if err != nil {
 		log.Fatal(err)

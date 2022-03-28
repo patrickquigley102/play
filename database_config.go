@@ -8,62 +8,51 @@ import (
 	"strings"
 )
 
-type sqlConfig struct {
-	user     string
-	password string
-	host     string
-	port     string
-	schema   string
+type configSQL struct {
+	usr string
+	pwd string
+	hst string
+	prt string
+	sch string
 }
 
-func (s sqlConfig) connectionString() string {
+func (s configSQL) connectionString() string {
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s",
-		s.user,
-		s.password,
-		s.host,
-		s.port,
-		s.schema,
+		"%s:%s@tcp(%s:%s)/%s", s.usr, s.pwd, s.hst, s.prt, s.sch,
 	)
 }
 
-func newSQLConfig(filePath string) *sqlConfig {
-	file, err := os.Open(filePath)
-	checkErr(err)
+func newConfigSQL(path string) *configSQL {
+	file, err := os.Open(path)
+	check(err)
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	scnr := bufio.NewScanner(file)
 
-	scanner.Scan()
-	user := strings.TrimPrefix(scanner.Text(), userTag)
-	scanner.Scan()
-	password := strings.TrimPrefix(scanner.Text(), passwordTag)
-	scanner.Scan()
-	host := strings.TrimPrefix(scanner.Text(), hostTag)
-	scanner.Scan()
-	port := strings.TrimPrefix(scanner.Text(), portTag)
-	scanner.Scan()
-	schema := strings.TrimPrefix(scanner.Text(), schemaTag)
+	usr := scan(scnr, usrTag)
+	pwd := scan(scnr, pwdTag)
+	hst := scan(scnr, hstTag)
+	prt := scan(scnr, prtTag)
+	sch := scan(scnr, schTag)
 
-	return &sqlConfig{
-		user:     user,
-		password: password,
-		host:     host,
-		port:     port,
-		schema:   schema,
-	}
+	return &configSQL{usr: usr, pwd: pwd, hst: hst, prt: prt, sch: sch}
 }
 
-func checkErr(err error) {
+func scan(scnr *bufio.Scanner, tag string) string {
+	scnr.Scan()
+	return strings.TrimPrefix(scnr.Text(), tag)
+}
+
+func check(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 const (
-	userTag     = "user: "
-	passwordTag = "password: "
-	hostTag     = "host: "
-	portTag     = "port: "
-	schemaTag   = "schema: "
+	usrTag = "user: "
+	pwdTag = "password: "
+	hstTag = "host: "
+	prtTag = "port: "
+	schTag = "schema: "
 )
