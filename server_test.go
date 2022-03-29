@@ -46,7 +46,7 @@ func TestServer_ServeHTTP(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := server{store: store}
+			s := newServer(store)
 			s.ServeHTTP(tt.args.w, tt.args.r)
 
 			gotCode := tt.args.w.Code
@@ -85,7 +85,7 @@ func TestServer_getScore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := server{store: store}
+			s := newServer(store)
 			s.getScore(tt.args.w, tt.args.name)
 
 			gotBody := tt.args.w.Body.String()
@@ -142,7 +142,7 @@ func TestServer_postScore(t *testing.T) {
 				scores:      map[string]int{"a": 0},
 				updateCalls: []string{},
 			}
-			s := server{store: store}
+			s := newServer(store)
 
 			s.postScore(tt.args.w, tt.args.name, tt.args.score)
 

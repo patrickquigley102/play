@@ -10,7 +10,7 @@ func TestServer_Integration(t *testing.T) {
 	config := "./environments/test.yaml"
 	store := newStoreSQL(config)
 	defer store.DB.Close()
-	server := server{store: store}
+	server := newServer(store)
 	responseWriter := httptest.NewRecorder()
 
 	wantBody := "100"

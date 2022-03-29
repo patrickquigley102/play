@@ -9,11 +9,16 @@ import (
 	"strings"
 )
 
-func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func newServer(store playerStorer) *server {
 	mux := http.NewServeMux()
-	mux.Handle("/league", http.HandlerFunc(s.LeagueHandler))
-	mux.Handle("/players/", http.HandlerFunc(s.PlayerHandler))
-	mux.ServeHTTP(w, r)
+	server := server{store: store, mux: mux}
+	mux.Handle("/league", http.HandlerFunc(server.LeagueHandler))
+	mux.Handle("/players/", http.HandlerFunc(server.PlayerHandler))
+	return &server
+}
+
+func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.mux.ServeHTTP(w, r)
 }
 
 func (s server) LeagueHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +84,7 @@ func parseURLParams(path string) (string, string, error) {
 
 type server struct {
 	store playerStorer
+	mux   *http.ServeMux
 }
 
 type playerStorer interface {
