@@ -11,14 +11,10 @@ import (
 
 func newServer(store playerStorer) *server {
 	mux := http.NewServeMux()
-	server := server{store: store, mux: mux}
+	server := server{store: store, Handler: mux}
 	mux.Handle("/league", http.HandlerFunc(server.LeagueHandler))
 	mux.Handle("/players/", http.HandlerFunc(server.PlayerHandler))
 	return &server
-}
-
-func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.mux.ServeHTTP(w, r)
 }
 
 func (s server) LeagueHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +80,7 @@ func parseURLParams(path string) (string, string, error) {
 
 type server struct {
 	store playerStorer
-	mux   *http.ServeMux
+	http.Handler
 }
 
 type playerStorer interface {
