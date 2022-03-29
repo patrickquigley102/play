@@ -19,17 +19,22 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}{
 		{
 			"get score",
-			args{w: httptest.NewRecorder(), r: buildGetRequest("a", t)},
+			args{w: httptest.NewRecorder(), r: getPlayer("a", t)},
 			http.StatusOK,
 		},
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), r: buildPostRequest("a", "1", t)},
+			args{w: httptest.NewRecorder(), r: postPlayer("a", "1", t)},
 			http.StatusCreated,
 		},
 		{
+			"get league",
+			args{w: httptest.NewRecorder(), r: getLeague(t)},
+			http.StatusOK,
+		},
+		{
 			"invalid route",
-			args{w: httptest.NewRecorder(), r: buildBadRequest()},
+			args{w: httptest.NewRecorder(), r: badPlayersRequest(t)},
 			http.StatusBadRequest,
 		},
 	}
@@ -202,22 +207,25 @@ func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
 	s.updateCalls = append(s.updateCalls, name)
 }
 
-func buildGetRequest(name string, t *testing.T) *http.Request {
+func getPlayer(name string, t *testing.T) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, "/players/"+name, nil)
 	return request
 }
 
-func buildBadRequest() *http.Request {
-	request, _ := http.NewRequest(http.MethodGet, "/not/a/route", nil)
+func getLeague(t *testing.T) *http.Request {
+	t.Helper()
+	request, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	return request
 }
 
-func buildPostRequest(
-	name string,
-	score string,
-	t *testing.T,
-) *http.Request {
+func badPlayersRequest(t *testing.T) *http.Request {
+	t.Helper()
+	request, _ := http.NewRequest(http.MethodGet, "/players/not/a/route", nil)
+	return request
+}
+
+func postPlayer(name string, score string, t *testing.T) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(
 		http.MethodPost,

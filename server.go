@@ -10,6 +10,17 @@ import (
 )
 
 func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.Handle("/league", http.HandlerFunc(s.LeagueHandler))
+	mux.Handle("/players/", http.HandlerFunc(s.PlayerHandler))
+	mux.ServeHTTP(w, r)
+}
+
+func (s server) LeagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s server) PlayerHandler(w http.ResponseWriter, r *http.Request) {
 	name, score, err := parseURLParams(r.URL.Path)
 
 	if err != nil {

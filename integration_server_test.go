@@ -16,10 +16,10 @@ func TestServer_Integration(t *testing.T) {
 	wantBody := "100"
 	wantStatus := http.StatusOK
 
-	server.ServeHTTP(httptest.NewRecorder(), buildPostRequest("pq", "10", t))
-	server.ServeHTTP(httptest.NewRecorder(), buildPostRequest("pq", "100", t))
+	server.ServeHTTP(httptest.NewRecorder(), postPlayer("pq", "10", t))
+	server.ServeHTTP(httptest.NewRecorder(), postPlayer("pq", "100", t))
 
-	server.ServeHTTP(responseWriter, buildGetRequest("pq", t))
+	server.ServeHTTP(responseWriter, getPlayer("pq", t))
 	gotBody := responseWriter.Body.String()
 	gotStatus := responseWriter.Code
 
