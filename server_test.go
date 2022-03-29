@@ -34,7 +34,12 @@ func TestServer_ServeHTTP(t *testing.T) {
 		},
 		{
 			"invalid route",
-			args{w: httptest.NewRecorder(), r: badPlayersRequest(t)},
+			args{w: httptest.NewRecorder(), r: invalidRoute(t)},
+			http.StatusNotFound,
+		},
+		{
+			"invalid player route",
+			args{w: httptest.NewRecorder(), r: invalidPlayers(t)},
 			http.StatusBadRequest,
 		},
 	}
@@ -219,9 +224,15 @@ func getLeague(t *testing.T) *http.Request {
 	return request
 }
 
-func badPlayersRequest(t *testing.T) *http.Request {
+func invalidPlayers(t *testing.T) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, "/players/not/a/route", nil)
+	return request
+}
+
+func invalidRoute(t *testing.T) *http.Request {
+	t.Helper()
+	request, _ := http.NewRequest(http.MethodGet, "/not/a/route", nil)
 	return request
 }
 
