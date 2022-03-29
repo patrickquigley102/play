@@ -7,16 +7,19 @@ import (
 )
 
 func TestServer_Integration(t *testing.T) {
-	store := &stubPlayerStore{scores: map[string]int{"a": 5}}
+	config := "./environments/test.yaml"
+	store := newStoreSQL(config)
+	defer store.DB.Close()
 	server := server{store: store}
 	responseWriter := httptest.NewRecorder()
 
-	wantBody := "10"
+	wantBody := "100"
 	wantStatus := http.StatusOK
 
-	server.ServeHTTP(httptest.NewRecorder(), buildPostRequest("a", "10", t))
+	server.ServeHTTP(httptest.NewRecorder(), buildPostRequest("pq", "10", t))
+	server.ServeHTTP(httptest.NewRecorder(), buildPostRequest("pq", "100", t))
 
-	server.ServeHTTP(responseWriter, buildGetRequest("a", t))
+	server.ServeHTTP(responseWriter, buildGetRequest("pq", t))
 	gotBody := responseWriter.Body.String()
 	gotStatus := responseWriter.Code
 

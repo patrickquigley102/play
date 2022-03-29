@@ -29,7 +29,7 @@ func Test_newConfigSQL(t *testing.T) {
 		{
 			"valid yaml config",
 			"environments/test.yaml",
-			"root:@tcp(mysql:3306)/play",
+			"root:@tcp(mysql:3306)/play_test",
 		},
 	}
 	for _, tt := range tests {
