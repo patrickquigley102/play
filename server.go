@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+type server struct {
+	store playerStorer
+	http.Handler
+}
+
 func newServer(store playerStorer) *server {
 	mux := http.NewServeMux()
 	server := server{store: store, Handler: mux}
@@ -76,11 +81,6 @@ func parseURLParams(path string) (string, string, error) {
 	}
 
 	return bits[2], score, nil
-}
-
-type server struct {
-	store playerStorer
-	http.Handler
 }
 
 type playerStorer interface {
