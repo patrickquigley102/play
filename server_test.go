@@ -136,8 +136,7 @@ func TestServer_postScore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{
-				scores:      map[string]int{"a": 0},
-				updateCalls: []string{},
+				scores: map[string]int{"a": 0}, updateCalls: []string{},
 			}
 			s := newServer(store)
 
