@@ -121,8 +121,7 @@ func TestServer_postScore(t *testing.T) {
 			"post score",
 			args{w: httptest.NewRecorder(), name: "a", score: "1"},
 			want{
-				body:        "Score Updated: 1",
-				code:        http.StatusCreated,
+				body: "Score Updated: 1", code: http.StatusCreated,
 				updateCalls: []string{"a"},
 			},
 		},
@@ -130,9 +129,7 @@ func TestServer_postScore(t *testing.T) {
 			"post score, invalid score",
 			args{w: httptest.NewRecorder(), name: "a", score: "not an int"},
 			want{
-				body:        "",
-				code:        http.StatusBadRequest,
-				updateCalls: []string{},
+				body: "", code: http.StatusBadRequest, updateCalls: []string{},
 			},
 		},
 	}
