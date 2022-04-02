@@ -4,18 +4,18 @@ import (
 	"database/sql"
 	"log"
 
-	// this is a comment to justify the blank import
+	// this is a comment to justify the blank import.
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// StoreSQL interacts with the play database
+// StoreSQL interacts with the play database.
 type StoreSQL struct {
 	DB *sql.DB
 }
 
 // NewStoreSQL takes a path to a yaml configuration file and returns a
 // StoreSQL connected to the play database.
-// yaml file must be formatted like
+// yaml file must be formatted like.
 //
 // user: user
 // password: password
@@ -39,7 +39,7 @@ func NewStoreSQL(path string) *StoreSQL {
 }
 
 // GetPlayerScore takes a name and returns the score for the first player
-// matching that name
+// matching that name.
 func (db StoreSQL) GetPlayerScore(name string) int {
 	var score int
 	stmt := "SELECT score FROM players WHERE name = ?;"
@@ -53,7 +53,7 @@ func (db StoreSQL) GetPlayerScore(name string) int {
 	return score
 }
 
-// UpdatePlayerScore takes a name and score, updating the score
+// UpdatePlayerScore takes a name and score, updating the score.
 func (db StoreSQL) UpdatePlayerScore(name string, score int) {
 	stmt, err := db.DB.Prepare("UPDATE players SET score = ? WHERE name = ?")
 	if err != nil {
