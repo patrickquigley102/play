@@ -44,7 +44,7 @@ func (s server) PlayerHandler(w http.ResponseWriter, r *http.Request) {
 func (s server) getScore(w http.ResponseWriter, name string) {
 	log.Printf("getScore for %s", name)
 
-	score := s.store.getPlayerScore(name)
+	score := s.store.GetPlayerScore(name)
 	if score > 0 {
 		fmt.Fprint(w, score)
 	} else {
@@ -62,9 +62,9 @@ func (s server) postScore(w http.ResponseWriter, name string, score string) {
 		return
 	}
 
-	s.store.updatePlayerScore(name, scoreInt)
+	s.store.UpdatePlayerScore(name, scoreInt)
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Score Updated: %v", s.store.getPlayerScore(name))
+	fmt.Fprintf(w, "Score Updated: %v", s.store.GetPlayerScore(name))
 }
 
 func parseURLParams(path string) (string, string, error) {
@@ -84,6 +84,6 @@ func parseURLParams(path string) (string, string, error) {
 }
 
 type playerStorer interface {
-	getPlayerScore(string) int
-	updatePlayerScore(string, int)
+	GetPlayerScore(string) int
+	UpdatePlayerScore(string, int)
 }

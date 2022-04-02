@@ -203,11 +203,11 @@ type stubPlayerStore struct {
 	updateCalls []string
 }
 
-func (s *stubPlayerStore) getPlayerScore(name string) int {
+func (s *stubPlayerStore) GetPlayerScore(name string) int {
 	return s.scores[name]
 }
 
-func (s *stubPlayerStore) updatePlayerScore(name string, score int) {
+func (s *stubPlayerStore) UpdatePlayerScore(name string, score int) {
 	s.scores[name] = score
 	s.updateCalls = append(s.updateCalls, name)
 }

@@ -1,4 +1,4 @@
-package main
+package storesql
 
 import (
 	"reflect"
@@ -28,7 +28,7 @@ func Test_newConfigSQL(t *testing.T) {
 	}{
 		{
 			"valid yaml config",
-			"environments/test.yaml",
+			"../environments/test.yaml",
 			"root:@tcp(mysql:3306)/play_test",
 		},
 	}

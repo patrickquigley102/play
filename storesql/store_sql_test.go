@@ -1,4 +1,4 @@
-package main
+package storesql
 
 import (
 	"testing"
@@ -39,13 +39,13 @@ func Test_database_getPlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := storeSQL{DB: db}
+			sqlStore := StoreSQL{DB: db}
 			mock.ExpectQuery(sql).
 				WithArgs(tt.args.name).
 				WillReturnRows(rows.AddRow(tt.want))
 
-			if got := sqlStore.getPlayerScore(tt.args.name); got != tt.want {
-				t.Errorf("getPlayerScore() = %v, want %v", got, tt.want)
+			if got := sqlStore.GetPlayerScore(tt.args.name); got != tt.want {
+				t.Errorf("GetPlayerScore() = %v, want %v", got, tt.want)
 			}
 
 			if err := mock.ExpectationsWereMet(); err != nil {
@@ -79,12 +79,12 @@ func Test_database_updatePlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := storeSQL{DB: db}
+			sqlStore := StoreSQL{DB: db}
 			mock.ExpectPrepare(sql).ExpectExec().
 				WithArgs(tt.args.score, tt.args.name).
 				WillReturnResult(sqlmock.NewResult(0, 1))
 
-			sqlStore.updatePlayerScore(tt.args.name, tt.args.score)
+			sqlStore.UpdatePlayerScore(tt.args.name, tt.args.score)
 
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations: %s", err)

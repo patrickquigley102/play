@@ -4,11 +4,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/patrickquigley102/play/storesql"
 )
 
 func TestServer_Integration(t *testing.T) {
 	config := "./environments/test.yaml"
-	store := newStoreSQL(config)
+	store := storesql.NewStoreSQL(config)
 	defer store.DB.Close()
 	server := newServer(store)
 	responseWriter := httptest.NewRecorder()
