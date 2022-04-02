@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -15,6 +14,6 @@ func main() {
 
 	server := newServer(store)
 
-	fmt.Println("Listening")
+	log.Println("Listening")
 	log.Fatal(http.ListenAndServe(":3000", *server))
 }
