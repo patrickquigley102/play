@@ -45,7 +45,7 @@ func scan(scnr *bufio.Scanner, tag string) string {
 
 func check(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
 

@@ -15,5 +15,8 @@ func main() {
 	server := newServer(store)
 
 	log.Println("Listening")
-	log.Fatal(http.ListenAndServe(":3000", *server))
+	err := http.ListenAndServe(":3000", *server)
+	if err != nil {
+		log.Print(err)
+	}
 }

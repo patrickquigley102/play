@@ -26,12 +26,12 @@ func NewStoreSQL(path string) *StoreSQL {
 	config := newConfigSQL(path)
 	db, err := sql.Open("mysql", config.connStr())
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	log.Println("Connected to DB")
@@ -57,12 +57,12 @@ func (db StoreSQL) GetPlayerScore(name string) int {
 func (db StoreSQL) UpdatePlayerScore(name string, score int) {
 	stmt, err := db.DB.Prepare("UPDATE players SET score = ? WHERE name = ?")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(score, name)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
