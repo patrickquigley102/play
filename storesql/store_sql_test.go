@@ -8,8 +8,8 @@ import (
 )
 
 func Test_database_getPlayerScore(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+	database, mock, _ := sqlmock.New()
+	defer database.Close()
 	sql := "SELECT score FROM players WHERE name = ?"
 	rows := sqlmock.NewRows([]string{"score"})
 
@@ -39,7 +39,7 @@ func Test_database_getPlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := StoreSQL{DB: db}
+			sqlStore := StoreSQL{DB: database}
 			mock.ExpectQuery(sql).
 				WithArgs(tt.args.name).
 				WillReturnRows(rows.AddRow(tt.want))
@@ -56,8 +56,8 @@ func Test_database_getPlayerScore(t *testing.T) {
 }
 
 func Test_database_updatePlayerScore(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+	database, mock, _ := sqlmock.New()
+	defer database.Close()
 	sql := "UPDATE players SET score = ?"
 
 	type args struct {
@@ -79,7 +79,7 @@ func Test_database_updatePlayerScore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sqlStore := StoreSQL{DB: db}
+			sqlStore := StoreSQL{DB: database}
 			mock.ExpectPrepare(sql).ExpectExec().
 				WithArgs(tt.args.score, tt.args.name).
 				WillReturnResult(sqlmock.NewResult(0, 1))

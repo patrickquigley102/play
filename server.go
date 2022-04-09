@@ -22,49 +22,53 @@ func newServer(store playerStorer) *server {
 	return &server
 }
 
-func (s server) LeagueHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+func (s server) LeagueHandler(writer http.ResponseWriter, r *http.Request) {
+	writer.WriteHeader(http.StatusOK)
 }
 
-func (s server) PlayerHandler(w http.ResponseWriter, r *http.Request) {
-	name, score, err := parseURLParams(r.URL.Path)
+func (s server) PlayerHandler(writer http.ResponseWriter, req *http.Request) {
+	name, score, err := parseURLParams(req.URL.Path)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if r.Method == http.MethodPost {
-		s.postScore(w, name, score)
+	if req.Method == http.MethodPost {
+		s.postScore(writer, name, score)
 	} else {
-		s.getScore(w, name)
+		s.getScore(writer, name)
 	}
 }
 
-func (s server) getScore(w http.ResponseWriter, name string) {
+func (s server) getScore(writer http.ResponseWriter, name string) {
 	log.Printf("getScore for %s", name)
 
 	score := s.store.GetPlayerScore(name)
 	if score > 0 {
-		fmt.Fprint(w, score)
+		fmt.Fprint(writer, score)
 	} else {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Score Not Found")
+		writer.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(writer, "Score Not Found")
 	}
 }
 
-func (s server) postScore(w http.ResponseWriter, name string, score string) {
+func (s server) postScore(
+	writer http.ResponseWriter,
+	name string,
+	score string,
+) {
 	log.Printf("postScore for %s", name)
 
 	scoreInt, err := strconv.Atoi(score)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	s.store.UpdatePlayerScore(name, scoreInt)
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Score Updated: %v", s.store.GetPlayerScore(name))
+	writer.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(writer, "Score Updated: %v", s.store.GetPlayerScore(name))
 }
 
 func parseURLParams(path string) (string, string, error) {

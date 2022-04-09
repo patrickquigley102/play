@@ -6,7 +6,7 @@ import (
 )
 
 func Test_configSQL_connStr(t *testing.T) {
-	s := configSQL{
+	configSQL := configSQL{
 		usr: "user",
 		pwd: "password",
 		hst: "host",
@@ -14,7 +14,7 @@ func Test_configSQL_connStr(t *testing.T) {
 		sch: "schema",
 	}
 	want := "user:password@tcp(host:port)/schema"
-	got := s.connStr()
+	got := configSQL.connStr()
 	if got != want {
 		t.Errorf("configSQL.connStr() = %v, want %v", got, want)
 	}

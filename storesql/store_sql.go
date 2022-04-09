@@ -24,18 +24,18 @@ type StoreSQL struct {
 // schema: schema
 func NewStoreSQL(path string) *StoreSQL {
 	config := newConfigSQL(path)
-	db, err := sql.Open("mysql", config.connStr())
+	database, err := sql.Open("mysql", config.connStr())
 	if err != nil {
 		log.Print(err)
 	}
 
-	err = db.Ping()
+	err = database.Ping()
 	if err != nil {
 		log.Print(err)
 	}
 
 	log.Println("Connected to DB")
-	return &StoreSQL{DB: db}
+	return &StoreSQL{DB: database}
 }
 
 // GetPlayerScore takes a name and returns the score for the first player

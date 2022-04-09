@@ -44,12 +44,13 @@ func TestServer_ServeHTTP(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
 			s := newServer(store)
-			s.ServeHTTP(tt.args.w, tt.args.r)
+			s.ServeHTTP(args.w, args.r)
 
-			gotCode := tt.args.w.Code
+			gotCode := args.w.Code
 			if !reflect.DeepEqual(gotCode, tt.want) {
 				t.Errorf("ServeHTTP() Code = %v, want %v", gotCode, tt.want)
 			}
