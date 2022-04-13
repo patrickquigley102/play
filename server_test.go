@@ -19,12 +19,12 @@ func TestServer_ServeHTTP(t *testing.T) {
 	}{
 		{
 			"get score",
-			args{w: httptest.NewRecorder(), r: getPlayer("a", t)},
+			args{w: httptest.NewRecorder(), r: getPlayer(t, "a")},
 			http.StatusOK,
 		},
 		{
 			"post score",
-			args{w: httptest.NewRecorder(), r: postPlayer("a", "1", t)},
+			args{w: httptest.NewRecorder(), r: postPlayer(t, "a", "1")},
 			http.StatusCreated,
 		},
 		{
@@ -209,7 +209,7 @@ func (s *stubPlayerStore) UpdatePlayerScore(name string, score int) {
 	s.updateCalls = append(s.updateCalls, name)
 }
 
-func getPlayer(name string, t *testing.T) *http.Request {
+func getPlayer(t *testing.T, name string) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, "/players/"+name, nil)
 	return request
@@ -233,7 +233,7 @@ func invalidRoute(t *testing.T) *http.Request {
 	return request
 }
 
-func postPlayer(name string, score string, t *testing.T) *http.Request {
+func postPlayer(t *testing.T, name string, score string) *http.Request {
 	t.Helper()
 	request, _ := http.NewRequest(
 		http.MethodPost,
