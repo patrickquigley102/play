@@ -7,7 +7,63 @@ import (
 	"testing"
 )
 
-func TestServer_ServeHTTP(t *testing.T) {
+func Test_server_routing(t *testing.T) {
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			"get score",
+			args{w: httptest.NewRecorder(), r: getPlayer(t, "a")},
+			http.StatusOK,
+		},
+		{
+			"get league",
+			args{w: httptest.NewRecorder(), r: getLeague(t)},
+			http.StatusOK,
+		},
+		{
+			"invalid route",
+			args{w: httptest.NewRecorder(), r: invalidRoute(t)},
+			http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		args := tt.args
+		t.Run(tt.name, func(t *testing.T) {
+			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+			s := newServer(store)
+			s.ServeHTTP(args.w, args.r)
+
+			gotCode := args.w.Code
+			if !reflect.DeepEqual(gotCode, tt.want) {
+				t.Errorf("ServeHTTP() Code = %v, want %v", gotCode, tt.want)
+			}
+		})
+	}
+}
+
+func Test_server_LeagueHandler(t *testing.T) {
+	store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+	server := newServer(store)
+	t.Run("returns 200", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r := getLeague(t)
+
+		server.LeagueHandler(w, r)
+
+		if !reflect.DeepEqual(w.Code, http.StatusOK) {
+			t.Errorf("LeagueHandler() Code = %v, want %v", w.Code, http.StatusOK)
+		}
+	})
+}
+
+func Test_server_PlayerHandler(t *testing.T) {
 	type args struct {
 		w *httptest.ResponseRecorder
 		r *http.Request
@@ -28,17 +84,7 @@ func TestServer_ServeHTTP(t *testing.T) {
 			http.StatusCreated,
 		},
 		{
-			"get league",
-			args{w: httptest.NewRecorder(), r: getLeague(t)},
-			http.StatusOK,
-		},
-		{
-			"invalid route",
-			args{w: httptest.NewRecorder(), r: invalidRoute(t)},
-			http.StatusNotFound,
-		},
-		{
-			"invalid player route",
+			"invalid request",
 			args{w: httptest.NewRecorder(), r: invalidPlayers(t)},
 			http.StatusBadRequest,
 		},
@@ -48,11 +94,11 @@ func TestServer_ServeHTTP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
 			s := newServer(store)
-			s.ServeHTTP(args.w, args.r)
+			s.PlayerHandler(args.w, args.r)
 
 			gotCode := args.w.Code
 			if !reflect.DeepEqual(gotCode, tt.want) {
-				t.Errorf("ServeHTTP() Code = %v, want %v", gotCode, tt.want)
+				t.Errorf("PlayerHandler() Code = %v, want %v", gotCode, tt.want)
 			}
 		})
 	}
