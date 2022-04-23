@@ -28,6 +28,7 @@ func NewServer(store playerStorer) *Server {
 func (s Server) leagueHandler(writer http.ResponseWriter, r *http.Request) {
 	log.Printf("getLeague")
 
+	writer.Header().Set("content-type", "application/json")
 	json.NewEncoder(writer).Encode(s.store.GetLeague())
 }
 

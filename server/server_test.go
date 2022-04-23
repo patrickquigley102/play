@@ -79,6 +79,18 @@ func Test_server_leagueHandler(t *testing.T) {
 			t.Errorf("LeagueHandler() got = %v, want = %v", got, league)
 		}
 	})
+
+	t.Run("sets the content type header", func(t *testing.T) {
+		writer := httptest.NewRecorder()
+		server.leagueHandler(writer, request)
+
+		got := writer.Result().Header.Get("content-type")
+		want := "application/json"
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("playerHandler() content-type = %v, want %v", got, want)
+		}
+	})
 }
 
 func Test_server_playerHandler(t *testing.T) {
