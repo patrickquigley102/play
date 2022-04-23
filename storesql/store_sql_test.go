@@ -1,13 +1,15 @@
 package storesql
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/patrickquigley102/play/server"
 )
 
-func Test_database_getPlayerScore(t *testing.T) {
+func Test_storesql_GetPlayerScore(t *testing.T) {
 	database, mock, _ := sqlmock.New()
 	defer database.Close()
 	sql := "SELECT score FROM players WHERE name = ?"
@@ -55,7 +57,7 @@ func Test_database_getPlayerScore(t *testing.T) {
 	}
 }
 
-func Test_database_updatePlayerScore(t *testing.T) {
+func Test_storesql_updatePlayerScore(t *testing.T) {
 	database, mock, _ := sqlmock.New()
 	defer database.Close()
 	sql := "UPDATE players SET score = ?"
@@ -90,5 +92,34 @@ func Test_database_updatePlayerScore(t *testing.T) {
 				t.Errorf("there were unfulfilled expectations: %s", err)
 			}
 		})
+	}
+}
+
+func Test_storesql_GetLeague(t *testing.T) {
+	database, mock, _ := sqlmock.New()
+	defer database.Close()
+
+	rows := sqlmock.NewRows([]string{"name", "score"})
+	sql := "SELECT name, score FROM players"
+	sqlStore := StoreSQL{DB: database}
+
+	mock.
+		ExpectQuery(sql).
+		WillReturnRows(
+			rows.AddRow("pq", 1),
+			rows.AddRow("qp", 2),
+		)
+
+	want := []server.Player{
+		{Name: "pq", Score: 1},
+		{Name: "qp", Score: 2},
+	}
+	got := sqlStore.GetLeague()
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("LeagueHandler() got = %v, want = %v", got, want)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }

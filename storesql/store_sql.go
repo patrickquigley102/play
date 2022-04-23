@@ -70,5 +70,27 @@ func (db StoreSQL) UpdatePlayerScore(name string, score int) {
 
 // GetLeague returns all players and their scores
 func (db StoreSQL) GetLeague() []server.Player {
-	return []server.Player{{Name: "Bob", Score: 1}}
+	var players []server.Player
+	stmt := "SELECT name, score FROM players;"
+	rows, err := db.DB.Query(stmt)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		player := server.Player{}
+		err := rows.Scan(&player.Name, &player.Score)
+		if err != nil {
+			log.Print(err)
+		}
+		players = append(players, player)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		log.Print(err)
+	}
+
+	return players
 }
