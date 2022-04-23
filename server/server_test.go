@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -49,16 +50,33 @@ func Test_server_routing(t *testing.T) {
 }
 
 func Test_server_leagueHandler(t *testing.T) {
-	store := &stubPlayerStore{scores: map[string]int{"a": 1}}
+	league := []Player{{"Bob", 1}, {"Mary", 2}}
+	store := &stubPlayerStore{league: league}
 	server := NewServer(store)
+	request, _ := http.NewRequest("GET", "", nil)
+
 	t.Run("returns 200", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		r := getLeague(t)
+		writer := httptest.NewRecorder()
+		server.leagueHandler(writer, request)
 
-		server.leagueHandler(w, r)
+		if !reflect.DeepEqual(writer.Code, http.StatusOK) {
+			t.Errorf("LeagueHandler() Code = %v, want %v", writer.Code, http.StatusOK)
+		}
+	})
 
-		if !reflect.DeepEqual(w.Code, http.StatusOK) {
-			t.Errorf("leagueHandler() Code = %v, want %v", w.Code, http.StatusOK)
+	t.Run("returns json encoded players in Body", func(t *testing.T) {
+		writer := httptest.NewRecorder()
+		server.leagueHandler(writer, request)
+
+		var got []Player
+		err := json.NewDecoder(writer.Body).Decode(&got)
+
+		if err != nil {
+			t.Errorf("Unable to parse %q into JSON. err: %v", request.Body, err)
+		}
+
+		if !reflect.DeepEqual(got, league) {
+			t.Errorf("LeagueHandler() got = %v, want = %v", got, league)
 		}
 	})
 }
@@ -244,6 +262,7 @@ func Test_parseURLParams(t *testing.T) {
 type stubPlayerStore struct {
 	scores      map[string]int
 	updateCalls []string
+	league      []Player
 }
 
 func (s *stubPlayerStore) GetPlayerScore(name string) int {
@@ -253,6 +272,10 @@ func (s *stubPlayerStore) GetPlayerScore(name string) int {
 func (s *stubPlayerStore) UpdatePlayerScore(name string, score int) {
 	s.scores[name] = score
 	s.updateCalls = append(s.updateCalls, name)
+}
+
+func (s *stubPlayerStore) GetLeague() []Player {
+	return s.league
 }
 
 func getPlayer(t *testing.T, name string) *http.Request {

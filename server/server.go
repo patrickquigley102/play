@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -25,6 +26,7 @@ func NewServer(store playerStorer) *Server {
 }
 
 func (s Server) leagueHandler(writer http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(writer).Encode(s.store.GetLeague())
 	writer.WriteHeader(http.StatusOK)
 }
 
@@ -92,4 +94,11 @@ func parseURLParams(path string) (string, string, error) {
 type playerStorer interface {
 	GetPlayerScore(string) int
 	UpdatePlayerScore(string, int)
+	GetLeague() []Player
+}
+
+// Player represents a Player name and score
+type Player struct {
+	Name  string
+	Score int
 }

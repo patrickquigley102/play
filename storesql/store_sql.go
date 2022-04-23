@@ -6,6 +6,7 @@ import (
 
 	// this is a comment to justify the blank import.
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/patrickquigley102/play/server"
 )
 
 // StoreSQL interacts with the play database.
@@ -65,4 +66,9 @@ func (db StoreSQL) UpdatePlayerScore(name string, score int) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+// GetLeague returns all players and their scores
+func (db StoreSQL) GetLeague() []server.Player {
+	return []server.Player{{Name: "Bob", Score: 1}}
 }
