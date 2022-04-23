@@ -6,3 +6,6 @@ update:
 
 get:
 	curl localhost:3000/players/$(N) -w "\n"
+
+league:
+	curl localhost:3000/league -w "\n"
