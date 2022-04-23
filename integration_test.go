@@ -5,23 +5,27 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/patrickquigley102/play/server"
 	"github.com/patrickquigley102/play/storesql"
 )
 
-func TestServer_Integration(t *testing.T) {
+func Test_Integration(t *testing.T) {
 	config := "./environments/test.yaml"
 	store := storesql.NewStoreSQL(config)
 	defer store.DB.Close()
-	server := newServer(store)
+	server := server.NewServer(store)
 	responseWriter := httptest.NewRecorder()
 
 	wantBody := "100"
 	wantStatus := http.StatusOK
 
-	server.ServeHTTP(httptest.NewRecorder(), postPlayer(t, "pq", "10"))
-	server.ServeHTTP(httptest.NewRecorder(), postPlayer(t, "pq", "100"))
+	request, _ := http.NewRequest(http.MethodPost, "/players/pq/10", nil)
+	server.ServeHTTP(httptest.NewRecorder(), request)
+	request, _ = http.NewRequest(http.MethodPost, "/players/pq/100", nil)
+	server.ServeHTTP(httptest.NewRecorder(), request)
 
-	server.ServeHTTP(responseWriter, getPlayer(t, "pq"))
+	request, _ = http.NewRequest(http.MethodGet, "/players/pq", nil)
+	server.ServeHTTP(responseWriter, request)
 	gotBody := responseWriter.Body.String()
 	gotStatus := responseWriter.Code
 

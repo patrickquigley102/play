@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"errors"
@@ -9,24 +9,26 @@ import (
 	"strings"
 )
 
-type server struct {
+// Server of http traffic. Embeds a http.Handler.
+type Server struct {
 	store playerStorer
 	http.Handler
 }
 
-func newServer(store playerStorer) *server {
+// NewServer returns a Server.
+func NewServer(store playerStorer) *Server {
 	mux := http.NewServeMux()
-	server := server{store: store, Handler: mux}
-	mux.Handle("/league", http.HandlerFunc(server.LeagueHandler))
-	mux.Handle("/players/", http.HandlerFunc(server.PlayerHandler))
+	server := Server{store: store, Handler: mux}
+	mux.Handle("/league", http.HandlerFunc(server.leagueHandler))
+	mux.Handle("/players/", http.HandlerFunc(server.playerHandler))
 	return &server
 }
 
-func (s server) LeagueHandler(writer http.ResponseWriter, r *http.Request) {
+func (s Server) leagueHandler(writer http.ResponseWriter, r *http.Request) {
 	writer.WriteHeader(http.StatusOK)
 }
 
-func (s server) PlayerHandler(writer http.ResponseWriter, req *http.Request) {
+func (s Server) playerHandler(writer http.ResponseWriter, req *http.Request) {
 	name, score, err := parseURLParams(req.URL.Path)
 
 	if err != nil {
@@ -41,7 +43,7 @@ func (s server) PlayerHandler(writer http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s server) getScore(writer http.ResponseWriter, name string) {
+func (s Server) getScore(writer http.ResponseWriter, name string) {
 	log.Printf("getScore for %s", name)
 
 	score := s.store.GetPlayerScore(name)
@@ -53,7 +55,7 @@ func (s server) getScore(writer http.ResponseWriter, name string) {
 	}
 }
 
-func (s server) postScore(
+func (s Server) postScore(
 	writer http.ResponseWriter,
 	name string,
 	score string,

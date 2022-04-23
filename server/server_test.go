@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"net/http"
@@ -37,7 +37,7 @@ func Test_server_routing(t *testing.T) {
 		args := tt.args
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := newServer(store)
+			s := NewServer(store)
 			s.ServeHTTP(args.w, args.r)
 
 			gotCode := args.w.Code
@@ -48,22 +48,22 @@ func Test_server_routing(t *testing.T) {
 	}
 }
 
-func Test_server_LeagueHandler(t *testing.T) {
+func Test_server_leagueHandler(t *testing.T) {
 	store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-	server := newServer(store)
+	server := NewServer(store)
 	t.Run("returns 200", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		r := getLeague(t)
 
-		server.LeagueHandler(w, r)
+		server.leagueHandler(w, r)
 
 		if !reflect.DeepEqual(w.Code, http.StatusOK) {
-			t.Errorf("LeagueHandler() Code = %v, want %v", w.Code, http.StatusOK)
+			t.Errorf("leagueHandler() Code = %v, want %v", w.Code, http.StatusOK)
 		}
 	})
 }
 
-func Test_server_PlayerHandler(t *testing.T) {
+func Test_server_playerHandler(t *testing.T) {
 	type args struct {
 		w *httptest.ResponseRecorder
 		r *http.Request
@@ -93,12 +93,12 @@ func Test_server_PlayerHandler(t *testing.T) {
 		args := tt.args
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := newServer(store)
-			s.PlayerHandler(args.w, args.r)
+			s := NewServer(store)
+			s.playerHandler(args.w, args.r)
 
 			gotCode := args.w.Code
 			if !reflect.DeepEqual(gotCode, tt.want) {
-				t.Errorf("PlayerHandler() Code = %v, want %v", gotCode, tt.want)
+				t.Errorf("playerHandler() Code = %v, want %v", gotCode, tt.want)
 			}
 		})
 	}
@@ -132,7 +132,7 @@ func TestServer_getScore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &stubPlayerStore{scores: map[string]int{"a": 1}}
-			s := newServer(store)
+			s := NewServer(store)
 			s.getScore(tt.args.w, tt.args.name)
 
 			gotBody := tt.args.w.Body.String()
@@ -185,7 +185,7 @@ func TestServer_postScore(t *testing.T) {
 			store := &stubPlayerStore{
 				scores: map[string]int{"a": 0}, updateCalls: []string{},
 			}
-			s := newServer(store)
+			s := NewServer(store)
 
 			s.postScore(tt.args.w, tt.args.name, tt.args.score)
 

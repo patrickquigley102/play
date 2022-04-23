@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/patrickquigley102/play/server"
 	"github.com/patrickquigley102/play/storesql"
 )
 
@@ -12,7 +13,7 @@ func main() {
 	store := storesql.NewStoreSQL(config)
 	defer store.DB.Close()
 
-	server := newServer(store)
+	server := server.NewServer(store)
 
 	log.Println("Listening")
 	err := http.ListenAndServe(":3000", *server)
