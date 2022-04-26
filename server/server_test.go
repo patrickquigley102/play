@@ -49,9 +49,9 @@ func Test_server_routing(t *testing.T) {
 	}
 }
 
-func Test_server_leagueHandler(t *testing.T) {
-	league := []Player{{"Bob", 1}, {"Mary", 2}}
-	store := &stubPlayerStore{league: league}
+func Test_server_LeagueHandler(t *testing.T) {
+	wantPlayers := []Player{{"Bob", 1}, {"Mary", 2}}
+	store := &stubPlayerStore{league: wantPlayers}
 	server := NewServer(store)
 	request, _ := http.NewRequest("GET", "", nil)
 
@@ -68,15 +68,15 @@ func Test_server_leagueHandler(t *testing.T) {
 		writer := httptest.NewRecorder()
 		server.leagueHandler(writer, request)
 
-		var got []Player
-		err := json.NewDecoder(writer.Body).Decode(&got)
+		var gotPlayers []Player
+		err := json.NewDecoder(writer.Body).Decode(&gotPlayers)
 
 		if err != nil {
 			t.Errorf("Unable to parse %q into JSON. err: %v", request.Body, err)
 		}
 
-		if !reflect.DeepEqual(got, league) {
-			t.Errorf("LeagueHandler() got = %v, want = %v", got, league)
+		if !reflect.DeepEqual(gotPlayers, wantPlayers) {
+			t.Errorf("LeagueHandler() got = %v, want = %v", gotPlayers, wantPlayers)
 		}
 	})
 
@@ -134,7 +134,7 @@ func Test_server_playerHandler(t *testing.T) {
 	}
 }
 
-func TestServer_getScore(t *testing.T) {
+func TestServer_GetScore(t *testing.T) {
 	type args struct {
 		w    *httptest.ResponseRecorder
 		name string
@@ -178,7 +178,7 @@ func TestServer_getScore(t *testing.T) {
 	}
 }
 
-func TestServer_postScore(t *testing.T) {
+func TestServer_PostScore(t *testing.T) {
 	type args struct {
 		w     *httptest.ResponseRecorder
 		name  string
