@@ -26,6 +26,9 @@ func NewStoreJSON(path string) *StoreJSON {
 // GetLeague returns all players and their scores
 func (store StoreJSON) GetLeague() []server.Player {
 	var players []server.Player
-	json.NewDecoder(store.database).Decode(&players)
+	err := json.NewDecoder(store.database).Decode(&players)
+	if err != nil {
+		return []server.Player{}
+	}
 	return players
 }
