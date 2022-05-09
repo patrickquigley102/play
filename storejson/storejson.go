@@ -1,6 +1,7 @@
 package storejson
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -24,5 +25,7 @@ func NewStoreJSON(path string) *StoreJSON {
 
 // GetLeague returns all players and their scores
 func (store StoreJSON) GetLeague() []server.Player {
-	return []server.Player{{Name: "a", Score: 1}}
+	var players []server.Player
+	json.NewDecoder(store.database).Decode(&players)
+	return players
 }

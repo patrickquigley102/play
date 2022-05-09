@@ -1,6 +1,7 @@
 package storejson
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -16,6 +17,7 @@ func TestStoreJSON_GetLeague(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			resetDatabase()
 			store := NewStoreJSON("../environments/test.json")
 			defer store.database.Close()
 			if got := store.GetLeague(); !reflect.DeepEqual(got, tt.want) {
@@ -23,4 +25,11 @@ func TestStoreJSON_GetLeague(t *testing.T) {
 			}
 		})
 	}
+}
+
+func resetDatabase() {
+	filePath := "../environments/test.json"
+	os.Truncate(filePath, 0)
+	resetValue := []byte("[{\"name\": \"a\", \"score\": 1}]")
+	os.WriteFile(filePath, resetValue, 0644)
 }
