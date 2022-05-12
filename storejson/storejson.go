@@ -32,3 +32,14 @@ func (store StoreJSON) GetLeague() []server.Player {
 	}
 	return players
 }
+
+// GetPlayerScore returns the score for a player
+func (store StoreJSON) GetPlayerScore(name string) int {
+	players := store.GetLeague()
+	for _, player := range players {
+		if player.Name == name {
+			return player.Score
+		}
+	}
+	return 0
+}
